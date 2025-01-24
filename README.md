@@ -61,6 +61,10 @@ To start the development server:
 1. For Development:
    ```bash
    php artisan serve
+   ```
+
+2. In a separate terminal, start Vite development server:
+   ```bash
    npm run dev
    ```
 
