@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             SubjectSeeder::class,
             AdvertSeeder::class,
-            AvailableTimeSeeder::class,
+            ReviewSeeder::class,
         ]);
     }
 }
