@@ -11,7 +11,7 @@ class AdvertSeeder extends Seeder
 {
     public function run(): void
     {
-        $tutors = User::factory(10)->create();
+        $tutors = User::factory(10)->create(['is_tutor' => true]);
         $subjects = Subject::all();
 
         // For each tutor, create 1-3 adverts for random subjects
