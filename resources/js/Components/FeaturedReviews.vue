@@ -9,7 +9,6 @@
       swipeable
       animated
       arrows
-      navigation
       infinite
       autoplay
       :autoplay-timeout="5000"
@@ -82,10 +81,6 @@ onMounted(async () => {
 <style>
 .q-carousel__arrow {
   color: var(--q-primary) !important;
-}
-
-.q-carousel__navigation {
-  margin-top: 8px;
 }
 
 .q-carousel__navigation-inner {
