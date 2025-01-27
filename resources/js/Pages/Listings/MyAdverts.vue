@@ -33,7 +33,7 @@ defineProps({
               <span class="text-sm text-grey">
                 Created {{ new Date(advert.created_at).toLocaleDateString() }}
               </span>
-              <q-badge :color="advert.is_active ? 'green' : 'grey'" class="text-white">
+              <q-badge :color="advert.is_active ? 'positive' : 'grey'">
                 {{ advert.is_active ? 'Active' : 'Inactive' }}
               </q-badge>
             </div>
