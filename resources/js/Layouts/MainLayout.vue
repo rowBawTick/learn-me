@@ -16,7 +16,7 @@
           <Link v-if="user?.is_tutor" href="/my-adverts" class="q-btn q-btn-item non-selectable no-outline q-btn--flat no-wrap text-black q-btn--rectangle q-focusable q-hoverable">
             My Adverts
           </Link>
-          <Link href="/create-advert" class="q-btn q-btn-item non-selectable no-outline q-btn--flat no-wrap text-black q-btn--rectangle q-focusable q-hoverable">
+          <Link href="/adverts/create" class="q-btn q-btn-item non-selectable no-outline q-btn--flat no-wrap text-black q-btn--rectangle q-focusable q-hoverable">
             Create Advert
           </Link>
           <Link href="/messages" class="q-btn q-btn-item non-selectable no-outline q-btn--flat no-wrap text-black q-btn--rectangle q-focusable q-hoverable">
@@ -38,7 +38,7 @@
                 <Link href="/my-adverts" class="text-inherit no-decoration full-width">My Adverts</Link>
               </q-item>
               <q-item>
-                <Link href="/create-advert" class="text-inherit no-decoration full-width">Create Advert</Link>
+                <Link href="/adverts/create" class="text-inherit no-decoration full-width">Create Advert</Link>
               </q-item>
               <q-item>
                 <Link href="/messages" class="text-inherit no-decoration full-width">Messages</Link>
