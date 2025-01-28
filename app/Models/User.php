@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_tutor',
+        'is_admin',
+        'time_zone',
     ];
 
     /**
@@ -41,6 +44,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_tutor' => 'boolean',
+        'is_admin' => 'boolean',
     ];
 
     /**

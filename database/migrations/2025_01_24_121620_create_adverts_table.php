@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->decimal('price_per_hour', 8, 2);
+            $table->foreignId('currency_id')->constrained('currencies')->onDelete('restrict');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

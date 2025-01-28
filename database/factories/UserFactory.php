@@ -16,6 +16,8 @@ class UserFactory extends Factory
      */
     protected static ?string $password;
 
+    protected $model = \App\Models\User::class;
+
     /**
      * Define the model's default state.
      *
@@ -23,12 +25,26 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        // Common time zones that observe DST
+        $timeZones = [
+            'Europe/London',
+            'Europe/Paris',
+            'America/New_York',
+            'America/Los_Angeles',
+            'Australia/Sydney',
+            'Europe/Berlin',
+            'Europe/Madrid',
+        ];
+
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'is_tutor' => false,
+            'is_admin' => false,
+            'time_zone' => fake()->randomElement($timeZones),
         ];
     }
 
@@ -39,6 +55,20 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    public function tutor(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_tutor' => true,
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_admin' => true,
         ]);
     }
 }

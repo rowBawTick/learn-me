@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Advert;
+use App\Models\Currency;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,10 +23,12 @@ class AdvertFactory extends Factory
     public function definition(): array
     {
         $subject = Subject::inRandomOrder()->first();
+        $currency = Currency::where('code', 'GBP')->first() ?? Currency::inRandomOrder()->first();
         
         return [
             'user_id' => User::factory(),
             'subject_id' => $subject->id,
+            'currency_id' => $currency->id,
             'title' => fake()->randomElement([
                 "Experienced {$subject->name} Tutor",
                 "Learn {$subject->name} with a Professional",

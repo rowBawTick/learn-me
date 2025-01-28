@@ -27,8 +27,15 @@ class AvailableTimeFactory extends Factory
         return [
             'advert_id' => Advert::factory(),
             'day_of_week' => fake()->randomElement($days),
-            'start_time' => sprintf('%02d:00:00', $startHour),
-            'end_time' => sprintf('%02d:00:00', $startHour + $duration),
+            'local_start_time' => sprintf('%02d:00', $startHour),
+            'local_end_time' => sprintf('%02d:00', $startHour + $duration),
+            'time_zone' => fake()->randomElement([
+                'Europe/London',
+                'America/New_York',
+                'Europe/Paris',
+                'Asia/Tokyo',
+                'Australia/Sydney'
+            ]),
             'is_recurring' => true,
         ];
     }

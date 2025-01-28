@@ -3,6 +3,8 @@
 use App\Http\Controllers\AdvertController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
+use App\Models\Currency;
+use App\Models\Subject;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -34,11 +36,13 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/adverts/create', function () {
         return Inertia::render('Listings/CreateAdvert', [
-            'subjects' => \App\Models\Subject::all(['id', 'name'])
+            'subjects' => Subject::all(['id', 'name']),
+            'currencies' => Currency::all(['id', 'code', 'symbol', 'name'])
         ]);
     })->name('adverts.create');
 
     Route::post('/adverts', [AdvertController::class, 'store'])->name('adverts.store');
+    Route::get('/adverts/{advert}', [AdvertController::class, 'show'])->name('adverts.show');
 
     Route::get('/reviews/featured', [ReviewController::class, 'featured'])->name('reviews.featured');
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews');

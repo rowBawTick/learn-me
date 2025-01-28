@@ -17,8 +17,11 @@ class Advert extends Model
         'title',
         'description',
         'price_per_hour',
+        'currency_id',
         'is_active',
     ];
+
+    protected $appends = ['formatted_price'];
 
     public function user(): BelongsTo
     {
@@ -30,8 +33,18 @@ class Advert extends Model
         return $this->belongsTo(Subject::class);
     }
 
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
+    }
+
     public function availableTimes(): HasMany
     {
         return $this->hasMany(AvailableTime::class);
+    }
+
+    public function getFormattedPriceAttribute(): string
+    {
+        return $this->currency?->symbol . $this->price_per_hour;
     }
 }
