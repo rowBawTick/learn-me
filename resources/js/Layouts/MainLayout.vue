@@ -1,28 +1,30 @@
 <template>
-  <q-layout view="hHh lpR fFf">
+  <q-layout view="hHh lpR fFf" class="bg-gray-50">
     <q-header elevated class="bg-white text-black">
-      <q-toolbar>
+      <q-toolbar class="q-px-lg">
         <q-toolbar-title class="text-primary">
-          <Link href="/" class="text-inherit no-decoration">LearnMe</Link>
+          <Link href="/" class="logo-link">
+            <span class="text-2xl font-bold">learn.me</span>
+          </Link>
         </q-toolbar-title>
 
         <q-space />
 
         <!-- Navigation Items -->
         <div class="gt-xs">
-          <Link href="/search" class="q-btn q-btn-item non-selectable no-outline q-btn--flat no-wrap text-black q-btn--rectangle q-focusable q-hoverable">
+          <Link href="/search" class="nav-link">
             Search Lessons
           </Link>
-          <Link v-if="user?.is_tutor" href="/my-adverts" class="q-btn q-btn-item non-selectable no-outline q-btn--flat no-wrap text-black q-btn--rectangle q-focusable q-hoverable">
+          <Link v-if="user?.is_tutor" href="/my-adverts" class="nav-link">
             My Adverts
           </Link>
-          <Link href="/adverts/create" class="q-btn q-btn-item non-selectable no-outline q-btn--flat no-wrap text-black q-btn--rectangle q-focusable q-hoverable">
+          <Link href="/adverts/create" class="nav-link">
             Create Advert
           </Link>
-          <Link href="/messages" class="q-btn q-btn-item non-selectable no-outline q-btn--flat no-wrap text-black q-btn--rectangle q-focusable q-hoverable">
+          <Link href="/messages" class="nav-link">
             Messages
           </Link>
-          <Link href="/reviews" class="q-btn q-btn-item non-selectable no-outline q-btn--flat no-wrap text-black q-btn--rectangle q-focusable q-hoverable">
+          <Link href="/reviews" class="nav-link">
             Reviews
           </Link>
         </div>
@@ -32,40 +34,40 @@
           <q-menu>
             <q-list style="min-width: 200px">
               <q-item>
-                <Link href="/search" class="text-inherit no-decoration full-width">Search Lessons</Link>
+                <Link href="/search" class="mobile-nav-link">Search Lessons</Link>
               </q-item>
               <q-item v-if="user?.is_tutor">
-                <Link href="/my-adverts" class="text-inherit no-decoration full-width">My Adverts</Link>
+                <Link href="/my-adverts" class="mobile-nav-link">My Adverts</Link>
               </q-item>
               <q-item>
-                <Link href="/adverts/create" class="text-inherit no-decoration full-width">Create Advert</Link>
+                <Link href="/adverts/create" class="mobile-nav-link">Create Advert</Link>
               </q-item>
               <q-item>
-                <Link href="/messages" class="text-inherit no-decoration full-width">Messages</Link>
+                <Link href="/messages" class="mobile-nav-link">Messages</Link>
               </q-item>
               <q-item>
-                <Link href="/reviews" class="text-inherit no-decoration full-width">Reviews</Link>
+                <Link href="/reviews" class="mobile-nav-link">Reviews</Link>
               </q-item>
             </q-list>
           </q-menu>
         </q-btn>
 
         <!-- User Menu -->
-        <q-btn flat round>
-          <q-avatar size="32px">
+        <q-btn flat round class="ml-4">
+          <q-avatar size="32px" class="shadow-sm">
             <img :src="user?.avatar || 'https://www.gravatar.com/avatar/?d=mp'" />
           </q-avatar>
 
           <q-menu>
             <q-list style="min-width: 150px">
               <q-item>
-                <Link href="/profile" class="text-inherit no-decoration full-width">Profile</Link>
+                <Link href="/profile" class="mobile-nav-link">Profile</Link>
               </q-item>
               <q-item>
-                <Link href="/settings" class="text-inherit no-decoration full-width">Settings</Link>
+                <Link href="/settings" class="mobile-nav-link">Settings</Link>
               </q-item>
               <q-separator />
-              <q-item clickable @click="logout">
+              <q-item clickable @click="logout" class="text-red-500">
                 <q-item-section>Logout</q-item-section>
               </q-item>
             </q-list>
@@ -74,8 +76,10 @@
       </q-toolbar>
     </q-header>
 
-    <q-page-container>
-      <slot />
+    <q-page-container class="q-pa-md">
+      <div class="max-w-7xl mx-auto">
+        <slot />
+      </div>
     </q-page-container>
   </q-layout>
 </template>
@@ -92,17 +96,26 @@ const logout = () => {
 </script>
 
 <style scoped>
-.no-decoration {
+.logo-link {
   text-decoration: none;
-}
-
-.text-inherit {
   color: inherit;
+  transition: opacity 0.2s;
 }
 
-.full-width {
+.logo-link:hover {
+  opacity: 0.9;
+}
+
+.nav-link {
+  @apply px-4 py-2 rounded-full text-gray-700 hover:text-primary hover:bg-sky-50 transition-colors duration-200 font-medium text-sm;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mobile-nav-link {
+  @apply block px-4 py-2 text-gray-700 hover:text-primary hover:bg-sky-50 transition-colors duration-200 rounded-lg;
+  text-decoration: none;
   width: 100%;
-  display: block;
-  padding: 8px 16px;
+  cursor: pointer;
 }
 </style>
