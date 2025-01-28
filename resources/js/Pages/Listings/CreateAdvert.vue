@@ -78,7 +78,6 @@
               filled
               dense
               borderless
-              input-class="no-border"
               :prefix="selectedCurrencySymbol"
               class="w-full"
               @keydown="allowDecimalInput"
@@ -210,13 +209,5 @@ const decrementPrice = (event) => {
 </script>
 
 <style>
-.no-border {
-  border: none !important;
-  box-shadow: none !important;
-}
 
-.no-border:focus {
-  border: none !important;
-  box-shadow: none !important;
-}
 </style>

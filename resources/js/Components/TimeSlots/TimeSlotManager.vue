@@ -42,7 +42,6 @@
                             map-options
                             class="w-full"
                             borderless
-                            input-class="no-border"
                             required
                         />
                     </td>
@@ -53,7 +52,6 @@
                             filled
                             dense
                             borderless
-                            input-class="no-border"
                             class="w-full cursor-pointer"
                             required
                         />
@@ -65,7 +63,6 @@
                             filled
                             dense
                             borderless
-                            input-class="no-border"
                             class="w-full cursor-pointer"
                             required
                         />

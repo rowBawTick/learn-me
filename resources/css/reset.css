@@ -43,6 +43,30 @@ button {
   cursor: pointer;
 }
 
+/* Reset input styles and focus states */
+input {
+  border: none;
+  outline: none;
+}
+
+input:focus {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+/* Specific reset for time inputs due to browser styling */
+input[type="time"] {
+  border: none;
+  outline: none;
+}
+
+input[type="time"]:focus {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
 /* Remove text decoration from links */
 a {
   text-decoration: none;
