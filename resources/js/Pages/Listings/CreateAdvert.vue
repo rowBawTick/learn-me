@@ -1,6 +1,6 @@
 <template>
   <Head title="Create New Advert" />
-  
+
   <MainLayout>
     <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <h1 class="text-3xl font-bold mb-8 text-darkestGrey">Create New Advert</h1>
@@ -66,7 +66,7 @@
             </q-select>
             <div v-if="form.errors.currency_id" class="mt-1 text-error text-sm">{{ form.errors.currency_id }}</div>
           </div>
-          
+
           <div>
             <label for="price" class="block text-sm font-medium text-darkerGrey">Price per hour</label>
             <q-input
@@ -74,11 +74,16 @@
               v-model.number="form.price_per_hour"
               type="number"
               min="0"
-              step="0.01"
+              step="any"
               filled
               dense
+              borderless
+              input-class="no-border"
               :prefix="selectedCurrencySymbol"
               class="w-full"
+              @keydown="allowDecimalInput"
+              @keydown.up="incrementPrice"
+              @keydown.down="decrementPrice"
               required
             />
             <div v-if="form.errors.price_per_hour" class="mt-1 text-error text-sm">{{ form.errors.price_per_hour }}</div>
@@ -174,4 +179,44 @@ if (props.currencies?.length) {
 const submit = () => {
   form.post(route('adverts.store'))
 }
+
+const allowDecimalInput = (event) => {
+  // Allow: backspace, delete, tab, escape, enter, decimal point
+  const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Enter', 'Escape', '.', 'ArrowLeft', 'ArrowRight']
+  if (allowedKeys.includes(event.key)) {
+    return
+  }
+
+  // Allow numbers
+  if (/\d/.test(event.key)) {
+    return
+  }
+
+  // Block any other input
+  event.preventDefault()
+}
+
+const incrementPrice = (event) => {
+  event.preventDefault()
+  const currentPrice = parseFloat(form.price_per_hour) || 0
+  form.price_per_hour = Math.max(0, Math.floor(currentPrice) + 1)
+}
+
+const decrementPrice = (event) => {
+  event.preventDefault()
+  const currentPrice = parseFloat(form.price_per_hour) || 0
+  form.price_per_hour = Math.max(0, Math.floor(currentPrice) - 1)
+}
 </script>
+
+<style>
+.no-border {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.no-border:focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+</style>
