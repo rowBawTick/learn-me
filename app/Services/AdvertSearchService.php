@@ -13,7 +13,7 @@ class AdvertSearchService
             ->with(['user', 'subject', 'currency'])
             ->select('adverts.*')
             ->join('users', 'users.id', '=', 'adverts.user_id')
-            ->leftJoin('reviews', 'reviews.reviewer_id', '=', 'users.id')
+            ->leftJoin('reviews', 'reviews.advert_id', '=', 'adverts.id')
             ->selectRaw('COALESCE(AVG(reviews.rating), 0) as avg_rating')
             ->selectRaw('COUNT(reviews.id) as review_count')
             ->groupBy('adverts.id')
