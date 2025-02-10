@@ -28,19 +28,9 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    Route::get('/my-adverts', function () {
-        return Inertia::render('Listings/MyAdverts', [
-            'adverts' => auth()->user()->adverts()->with('subject')->get()
-        ]);
-    })->name('adverts.index');
-
-    Route::get('/adverts/create', function () {
-        return Inertia::render('Listings/CreateAdvert', [
-            'subjects' => Subject::all(['id', 'name']),
-            'currencies' => Currency::all(['id', 'code', 'symbol', 'name'])
-        ]);
-    })->name('adverts.create');
-
+    // Adverts
+    Route::get('/adverts/search', [AdvertController::class, 'search'])->name('adverts.search');
+    Route::get('/adverts/create', [AdvertController::class, 'create'])->name('adverts.create');
     Route::post('/adverts', [AdvertController::class, 'store'])->name('adverts.store');
     Route::get('/adverts/{advert}', [AdvertController::class, 'show'])->name('adverts.show');
 

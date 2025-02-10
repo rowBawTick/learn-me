@@ -18,6 +18,9 @@ return new class extends Migration
             $table->integer('rating')->comment('Rating from 1 to 5');
             $table->text('description');
             $table->timestamps();
+
+            // Add index for filtering by rating
+            $table->index('rating');
         });
     }
 

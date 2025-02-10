@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Advert;
 use App\Models\Currency;
 use App\Models\Subject;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Services\AdvertSearchService;
 
 class AdvertController extends Controller
 {
@@ -52,7 +52,7 @@ class AdvertController extends Controller
         ]);
 
         $userTimeZone = auth()->user()->time_zone;
-        
+
         foreach ($validated['available_times'] as $timeSlot) {
             $advert->availableTimes()->create([
                 'day_of_week' => $timeSlot['day_of_week'],
@@ -70,6 +70,32 @@ class AdvertController extends Controller
     {
         return Inertia::render('Listings/ShowAdvert', [
             'advert' => $advert->load(['subject', 'currency', 'availableTimes'])
+        ]);
+    }
+
+    public function search(Request $request, AdvertSearchService $searchService): Response
+    {
+        $filters = $request->validate([
+            'tutor_name' => 'nullable|string|max:255',
+            'subject' => 'nullable|string|max:255',
+            'min_price' => 'nullable|numeric|min:0',
+            'max_price' => 'nullable|numeric|min:0|gt:min_price',
+            'min_rating' => 'nullable|integer|min:1|max:5',
+            'availability' => 'nullable|array',
+            'availability.*.day_of_week' => 'required_with:availability|string|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
+            'availability.*.start_time' => 'nullable|date_format:H:i',
+            'availability.*.end_time' => 'nullable|date_format:H:i|after:availability.*.start_time',
+            'sort_by' => 'nullable|string|in:price_per_hour,rating',
+            'sort_direction' => 'nullable|string|in:asc,desc',
+        ]);
+
+        $maxPrice = ceil(Advert::max('price_per_hour') / 100) * 100;
+
+        return Inertia::render('Listings/SearchAdverts', [
+            'adverts' => $searchService->search($filters),
+            'filters' => $filters,
+            'subjects' => Subject::all(['id', 'name']),
+            'maxPrice' => $maxPrice,
         ]);
     }
 }

@@ -12,7 +12,7 @@
 
         <!-- Navigation Items -->
         <div class="gt-xs">
-          <Link href="/search" class="nav-link">
+          <Link href="/adverts/search" class="nav-link">
             Search Lessons
           </Link>
           <Link v-if="user?.is_tutor" href="/my-adverts" class="nav-link">
@@ -34,7 +34,7 @@
           <q-menu>
             <q-list style="min-width: 200px">
               <q-item>
-                <Link href="/search" class="mobile-nav-link">Search Lessons</Link>
+                <Link href="/adverts/search" class="mobile-nav-link">Search Lessons</Link>
               </q-item>
               <q-item v-if="user?.is_tutor">
                 <Link href="/my-adverts" class="mobile-nav-link">My Adverts</Link>
@@ -86,6 +86,7 @@
 
 <script setup>
 import { Link, useForm, usePage } from '@inertiajs/vue3'
+import { QLayout, QHeader, QToolbar, QToolbarTitle, QSpace, QBtn, QMenu, QList, QItem } from 'quasar'
 
 const user = usePage().props.auth.user
 const form = useForm()

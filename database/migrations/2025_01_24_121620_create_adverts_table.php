@@ -21,6 +21,12 @@ return new class extends Migration
             $table->foreignId('currency_id')->constrained('currencies')->onDelete('restrict');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            // Add indexes for efficient searching and sorting
+            $table->index('price_per_hour');
+            $table->index('is_active');
+            $table->index(['user_id', 'is_active']);
+            $table->index(['subject_id', 'is_active']);
         });
     }
 
