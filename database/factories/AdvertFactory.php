@@ -22,31 +22,43 @@ class AdvertFactory extends Factory
      */
     public function definition(): array
     {
-        $subject = Subject::inRandomOrder()->first();
         $currency = Currency::where('code', 'GBP')->first() ?? Currency::inRandomOrder()->first();
-        
+
         return [
             'user_id' => User::factory(),
-            'subject_id' => $subject->id,
+            'subject_id' => Subject::factory(),
             'currency_id' => $currency->id,
-            'title' => fake()->randomElement([
-                "Experienced {$subject->name} Tutor",
-                "Learn {$subject->name} with a Professional",
-                "{$subject->name} Lessons for All Levels",
-                "Private {$subject->name} Tutoring",
-                "Expert {$subject->name} Teacher"
-            ]),
+            'title' => 'Placeholder Title', // This is replaced in configure()
             'description' => fake()->paragraph() . "\n\n" .
                 "Experience:\n" . fake()->randomElement([
                     "- Over 5 years of teaching experience\n",
                     "- Certified instructor\n",
                     "- Native speaker\n",
-                    "- University degree in {$subject->name}\n"
+                    "- University degree in the subject\n"
                 ]) .
                 "- Personalized lesson plans\n" .
                 "- Flexible scheduling\n",
             'price_per_hour' => fake()->randomFloat(2, 20, 100),
             'is_active' => true,
         ];
+    }
+
+    /**
+     * Configure the factory.
+     *
+     * @return $this
+     */
+    public function configure()
+    {
+        return $this->afterMaking(function (Advert $advert) {
+            $subject = Subject::find($advert->subject_id);
+            $advert->title = fake()->randomElement([
+                "Experienced {$subject->name} Tutor",
+                "Learn {$subject->name} with a Professional",
+                "{$subject->name} Lessons for All Levels",
+                "Private {$subject->name} Tutoring",
+                "Expert {$subject->name} Teacher"
+            ]);
+        });
     }
 }
