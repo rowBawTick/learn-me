@@ -68,8 +68,16 @@ class AdvertController extends Controller
 
     public function show(Advert $advert): Response
     {
-        return Inertia::render('Listings/ShowAdvert', [
-            'advert' => $advert->load(['subject', 'currency', 'availableTimes'])
+        $advert->load([
+            'subject',
+            'currency',
+            'availableTimes',
+            'user',
+            'reviews' => fn($query) => $query->with('reviewer')->latest()
+        ]);
+        
+        return Inertia::render('Adverts/ShowAdvert', [
+            'advert' => $advert
         ]);
     }
 

@@ -21,7 +21,7 @@ class Advert extends Model
         'is_active',
     ];
 
-    protected $appends = ['formatted_price'];
+    protected $appends = ['formatted_price', 'average_rating'];
 
     public function user(): BelongsTo
     {
@@ -43,8 +43,18 @@ class Advert extends Model
         return $this->hasMany(AvailableTime::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
     public function getFormattedPriceAttribute(): string
     {
         return $this->currency?->symbol . $this->price_per_hour;
+    }
+
+    public function getAverageRatingAttribute(): float
+    {
+        return $this->reviews()->avg('rating') ?? 0;
     }
 }
