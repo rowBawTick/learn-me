@@ -1,42 +1,3 @@
-<script setup>
-import { ref, computed } from 'vue'
-import { QCard, QCardSection, QBtn, QRating } from 'quasar'
-import MainLayout from '@/Layouts/MainLayout.vue'
-
-const props = defineProps({
-    advert: {
-        type: Object,
-        required: true
-    }
-})
-
-const isFavorite = ref(false)
-
-const toggleFavorite = () => {
-    isFavorite.value = !isFavorite.value
-}
-
-const rating = computed(() => {
-    return props.advert.average_rating || 0
-})
-
-const availableTimes = computed(() => {
-    return props.advert.available_times || []
-})
-
-const reviews = computed(() => {
-    return props.advert.reviews || []
-})
-
-const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    })
-}
-</script>
-
 <template>
     <MainLayout>
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -100,55 +61,59 @@ const formatDate = (dateString) => {
                             icon="mail"
                             label="Message Tutor"
                             class="w-full sm:w-auto"
+                            @click="isChatOpen = true"
                         />
                     </div>
                 </QCardSection>
             </QCard>
 
-            <!-- Reviews Section -->
-            <QCard class="w-full mt-8">
-                <QCardSection>
-                    <h2 class="text-xl font-bold text-gray-900">Reviews</h2>
-                    <div v-if="reviews.length" class="mt-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                            <QCard
-                                v-for="review in reviews"
-                                :key="review.id"
-                                flat
-                                bordered
-                                class="bg-gray-50/50"
-                            >
-                                <QCardSection>
-                                    <div class="space-y-4">
-                                        <div>
-                                            <h3 class="text-lg font-semibold text-gray-900">
-                                                {{ review.reviewer.name }}
-                                            </h3>
-                                            <div class="mt-2 flex items-center gap-4 text-sm text-gray-600">
-                                                <div class="flex items-center">
-                                                    <QRating
-                                                        :model-value="review.rating"
-                                                        :max="5"
-                                                        size="1em"
-                                                        readonly
-                                                    />
-                                                    <span class="ml-1">{{ review.rating }}/5</span>
-                                                </div>
-                                                <span class="text-gray-400">•</span>
-                                                <span>{{ formatDate(review.created_at) }}</span>
-                                            </div>
-                                        </div>
-                                        <p class="text-gray-700 whitespace-pre-line">{{ review.description }}</p>
-                                    </div>
-                                </QCardSection>
-                            </QCard>
-                        </div>
-                    </div>
-                    <p v-else class="mt-4 text-gray-600 italic text-center">
-                        No reviews yet
-                    </p>
-                </QCardSection>
-            </QCard>
+            <ChatBox
+                v-model:is-open="isChatOpen"
+                :recipient-id="advert.user_id"
+                :recipient-name="advert.user?.name"
+                :user-id="auth.user?.id"
+                :user-name="auth.user?.name"
+            />
+
+            <UserReviews :reviews="reviews" />
         </div>
     </MainLayout>
 </template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { QCard, QCardSection, QBtn, QIcon, QRating } from 'quasar'
+import MainLayout from '@/Layouts/MainLayout.vue'
+import ChatBox from '@/Components/ChatBox.vue'
+import UserReviews from '@/Components/UserReviews.vue'
+
+const props = defineProps({
+    advert: {
+        type: Object,
+        required: true
+    },
+    auth: {
+        type: Object,
+        required: true
+    }
+})
+
+const isFavorite = ref(false)
+const isChatOpen = ref(false)
+
+const toggleFavorite = () => {
+    isFavorite.value = !isFavorite.value
+}
+
+const rating = computed(() => {
+    return props.advert.average_rating || 0
+})
+
+const availableTimes = computed(() => {
+    return props.advert.available_times || []
+})
+
+const reviews = computed(() => {
+    return props.advert.reviews || []
+})
+</script>
