@@ -69,13 +69,18 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { date } from 'quasar'
+import { usePage } from '@inertiajs/vue3'
+import axios from 'axios'
+
+const page = usePage()
+const authUser = computed(() => {
+    return page.props.auth?.user
+})
 
 const props = defineProps({
     isOpen: Boolean,
     recipientId: Number,
     recipientName: String,
-    userId: Number,
-    userName: String
 })
 
 const emit = defineEmits(['update:isOpen'])
@@ -86,8 +91,13 @@ const newMessage = ref('')
 const isSending = ref(false)
 
 const defaultMessage = computed(() => {
-    if (!props.recipientName || !props.userName) return ''
-    return `Hi ${props.recipientName},\n\nI'm interested in your tutoring services. Would you be available for a lesson?\n\nBest regards,\n${props.userName}`
+    if (!props.recipientName || !authUser.value?.name) return ''
+    return `
+        Hi ${props.recipientName},
+        \n\nI'm interested in your tutoring services. Would you be available for a lesson?
+        \n\nBest regards,
+        \n${authUser.value.name}
+    `;
 })
 
 const formatDate = (dateStr) => {
@@ -95,27 +105,28 @@ const formatDate = (dateStr) => {
 }
 
 const getMessageAlignment = (message) => {
-    return message.sender_id === props.userId
+    return message.sender_id === authUser.value?.id
         ? 'bg-primary text-white ml-auto'
         : 'bg-grey-3 mr-auto'
     ;
 }
 
 const getTimestampAlignment = (message) => {
-    return message.sender_id === props.userId ? 'text-right' : 'text-left';
+    return message.sender_id === authUser.value?.id ? 'text-right' : 'text-left';
 }
 
 const loadMessages = async () => {
     try {
-        const response = await axios.get(`/api/messages/${props.recipientId}`)
-        messages.value = response.data
+        const response = await axios.get(`/api/messages/${props.recipientId}`);
+        messages.value = response.data;
     } catch (error) {
-        console.error('Error loading messages:', error)
+        const errorMessage = error.response?.data?.message || 'Failed to load messages';
+        console.error('Error loading messages:', error.response?.data || error);
         if ($q.notify) {
             $q.notify({
                 type: 'negative',
-                message: 'Failed to load messages'
-            })
+                message: errorMessage
+            });
         }
     }
 }
@@ -126,28 +137,40 @@ const sendMessage = async () => {
             $q.notify({
                 type: 'warning',
                 message: 'Please enter a message'
-            })
+            });
         }
-        return
+        return;
     }
 
-    isSending.value = true
-    try {
-        const response = await axios.post(`/api/messages/${props.recipientId}`, {
-            message: newMessage.value.trim()
-        })
-        messages.value.push(response.data);
-        newMessage.value = '';
-    } catch (error) {
-        console.error('Error sending message:', error)
+    if (!authUser.value) {
         if ($q.notify) {
             $q.notify({
                 type: 'negative',
-                message: 'Failed to send message'
-            })
+                message: 'Please log in to send messages'
+            });
+        }
+        return;
+    }
+
+    isSending.value = true;
+    try {
+        const response = await axios.post(`/api/messages/${props.recipientId}`, {
+            message: newMessage.value.trim()
+        });
+
+        messages.value.push(response.data);
+        newMessage.value = '';
+    } catch (error) {
+        const errorMessage = error.response?.data?.message || 'Failed to send message';
+        console.error('Error sending message:', error.response?.data || error);
+        if ($q.notify) {
+            $q.notify({
+                type: 'negative',
+                message: errorMessage
+            });
         }
     } finally {
-        isSending.value = false
+        isSending.value = false;
     }
 }
 

@@ -71,8 +71,6 @@
                 v-model:is-open="isChatOpen"
                 :recipient-id="advert.user_id"
                 :recipient-name="advert.user?.name"
-                :user-id="auth.user?.id"
-                :user-name="auth.user?.name"
             />
 
             <UserReviews :reviews="reviews" />

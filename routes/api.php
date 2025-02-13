@@ -24,11 +24,8 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Messages routes
-Route::get('/messages/{recipient}', [MessageController::class, 'getConversation'])->where('recipient', '[0-9]+');
-Route::post('/messages/{recipient}', [MessageController::class, 'store'])->where('recipient', '[0-9]+');
-
-// Protected routes
-Route::middleware('auth:sanctum')->group(function () {
-
+// Messages routes - protected with web auth
+Route::middleware('auth')->group(function () {
+    Route::get('/messages/{recipientId}', [MessageController::class, 'getConversation'])->where('recipientId', '[0-9]+');
+    Route::post('/messages/{recipientId}', [MessageController::class, 'store'])->where('recipientId', '[0-9]+');
 });
