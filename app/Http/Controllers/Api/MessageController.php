@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Message;
+use App\Services\CustomLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class MessageController extends Controller
 {
@@ -31,21 +31,14 @@ class MessageController extends Controller
 
             return response()->json($messages);
         } catch (\Exception $e) {
-            Log::error('Error getting conversation', [
-                'error' => $e->getMessage(),
-                'recipientId' => $recipientId,
-                'userId' => Auth::id()
-            ]);
-
-            if (config('app.debug')) {
-                return response()->json([
-                    'message' => 'Error getting conversation',
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ], 500);
-            }
-
-            return response()->json(['message' => 'Error getting conversation'], 500);
+            return CustomLogger::errorResponse(
+                'Error getting conversation',
+                $e,
+                [
+                    'recipientId' => $recipientId,
+                    'userId' => Auth::id()
+                ]
+            );
         }
     }
 
@@ -66,22 +59,15 @@ class MessageController extends Controller
 
             return response()->json($message->load(['sender:id,name', 'recipient:id,name']));
         } catch (\Exception $e) {
-            Log::error('Error storing message', [
-                'error' => $e->getMessage(),
-                'recipientId' => $recipientId,
-                'userId' => Auth::id(),
-                'requestData' => $request->all()
-            ]);
-
-            if (config('app.debug')) {
-                return response()->json([
-                    'message' => 'Error sending message',
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ], 500);
-            }
-
-            return response()->json(['message' => 'Error sending message'], 500);
+            return CustomLogger::errorResponse(
+                'Error sending message',
+                $e,
+                [
+                    'recipientId' => $recipientId,
+                    'userId' => Auth::id(),
+                    'requestData' => $request->all()
+                ]
+            );
         }
     }
 }
