@@ -98,7 +98,7 @@ const userId = computed(() => page.props.auth.user.id)
 const authUser = computed(() => page.props.auth.user)
 const defaultMessage = computed(() => {
     if (!props.recipientName || !authUser.value?.name) return ''
-    
+
     return `Hi ${props.recipientName},
 
 I'm interested in your tutoring services. Would you be available for a lesson?
@@ -132,9 +132,14 @@ const formatDate = (dateStr) => {
 // API interactions
 const loadMessages = async () => {
     try {
-        const response = await axios.get(`/api/messages/conversation/${props.recipientId}`)
+        const response = await axios.get(`/api/messages/${props.recipientId}`)
         conversation.value = response.data.conversation
         messages.value = response.data.messages || []
+
+        // Only set default message if this is a new conversation with no messages
+        if (!messages.value.length) {
+            newMessage.value = defaultMessage.value
+        }
     } catch (error) {
         console.error('Error loading messages:', error)
     }
@@ -163,10 +168,6 @@ const sendMessage = async () => {
 watch(() => props.isOpen, (newVal) => {
     if (newVal) {
         loadMessages()
-        // Set default message only if there are no existing messages
-        if (!messages.value.length) {
-            newMessage.value = defaultMessage.value
-        }
     } else {
         // Clear messages when dialog closes
         messages.value = []
@@ -193,5 +194,10 @@ watch(() => props.isOpen, (newVal) => {
 .messages-container::-webkit-scrollbar-thumb {
     background-color: rgba(156, 163, 175, 0.5);
     border-radius: 3px;
+}
+
+.message-bubble {
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 </style>
