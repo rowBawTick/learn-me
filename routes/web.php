@@ -1,11 +1,9 @@
 <?php
 
 use App\Http\Controllers\AdvertController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
-use App\Models\Currency;
-use App\Models\Subject;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -36,7 +34,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/reviews/featured', [ReviewController::class, 'featured'])->name('reviews.featured');
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews');
-    Route::get('/messages', function () {
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/inbox', function () {
         return Inertia::render('Messages');
     })->name('messages');
 

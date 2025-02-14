@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             AdvertSeeder::class,
             AvailableTimeSeeder::class,
             ReviewSeeder::class,
+            MessageSeeder::class,
         ]);
     }
 }
