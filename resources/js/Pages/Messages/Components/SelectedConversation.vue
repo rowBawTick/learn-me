@@ -108,9 +108,9 @@ const scrollToBottom = () => {
 
 const loadMessages = async () => {
     if (!props.conversation?.id) return
-    
+
     try {
-        const response = await axios.get(`/api/messages/${props.conversation.id}`)
+        const response = await axios.get(`/api/conversation/${props.conversation.id}`)
         messages.value = response.data.messages
         scrollToBottom()
     } catch (error) {
@@ -123,11 +123,11 @@ const sendMessage = async () => {
 
     sending.value = true
     try {
-        const response = await axios.post('/api/messages/send', {
+        const response = await axios.post('/api/conversation/message/send', {
             recipient_id: props.conversation.participants.find(p => p.id !== userId)?.id,
             message: newMessage.value.trim()
         })
-        
+
         messages.value.push(response.data.message)
         newMessage.value = ''
         scrollToBottom()

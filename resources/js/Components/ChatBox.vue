@@ -51,12 +51,11 @@
                         />
                         <q-btn
                             type="submit"
-                            color="primary"
                             :loading="isSending"
+                            :disable="!newMessage.trim()"
+                            color="primary"
                             icon="send"
                             round
-                            flat
-                            size="md"
                         />
                     </div>
                 </q-form>
@@ -66,137 +65,113 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import { useQuasar } from 'quasar'
-import { date } from 'quasar'
+import { ref, watch, computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 
-const page = usePage()
-const authUser = computed(() => {
-    return page.props.auth?.user
-})
-
 const props = defineProps({
-    isOpen: Boolean,
-    recipientId: Number,
-    recipientName: String,
+    isOpen: {
+        type: Boolean,
+        required: true
+    },
+    recipientId: {
+        type: Number,
+        required: true
+    },
+    recipientName: {
+        type: String,
+        required: true
+    }
 })
 
 const emit = defineEmits(['update:isOpen'])
-const $q = useQuasar()
 
+// State management
+const page = usePage()
 const messages = ref([])
 const newMessage = ref('')
 const isSending = ref(false)
+const conversation = ref(null)
 
+// Computed properties
+const userId = computed(() => page.props.auth.user.id)
+const authUser = computed(() => page.props.auth.user)
 const defaultMessage = computed(() => {
     if (!props.recipientName || !authUser.value?.name) return ''
-    return `
-        Hi ${props.recipientName},
-        \n\nI'm interested in your tutoring services. Would you be available for a lesson?
-        \n\nBest regards,
-        \n${authUser.value.name}
-    `;
+    
+    return `Hi ${props.recipientName},
+
+I'm interested in your tutoring services. Would you be available for a lesson?
+
+Best regards,
+${authUser.value.name}`
+})
+
+// Message styling utilities
+const getMessageAlignment = (message) => ({
+    'bg-primary text-white ml-auto': message.sender_id === userId.value,
+    'bg-grey-2 mr-auto': message.sender_id !== userId.value
+})
+
+const getTimestampAlignment = (message) => ({
+    'text-right': message.sender_id === userId.value,
+    'text-left': message.sender_id !== userId.value
 })
 
 const formatDate = (dateStr) => {
-    return date.formatDate(dateStr, 'MMM D, YYYY h:mm A')
+    const date = new Date(dateStr)
+    return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    })
 }
 
-const getMessageAlignment = (message) => {
-    return message.sender_id === authUser.value?.id
-        ? 'bg-primary text-white ml-auto'
-        : 'bg-grey-3 mr-auto'
-    ;
-}
-
-const getTimestampAlignment = (message) => {
-    return message.sender_id === authUser.value?.id ? 'text-right' : 'text-left';
-}
-
+// API interactions
 const loadMessages = async () => {
     try {
-        const response = await axios.get(`/api/messages/${props.recipientId}`);
-        messages.value = response.data;
+        const response = await axios.get(`/api/messages/conversation/${props.recipientId}`)
+        conversation.value = response.data.conversation
+        messages.value = response.data.messages || []
     } catch (error) {
-        const errorMessage = error.response?.data?.message || 'Failed to load messages';
-        console.error('Error loading messages:', error.response?.data || error);
-        if ($q.notify) {
-            $q.notify({
-                type: 'negative',
-                message: errorMessage
-            });
-        }
+        console.error('Error loading messages:', error)
     }
 }
 
 const sendMessage = async () => {
-    if (!newMessage.value.trim()) {
-        if ($q.notify) {
-            $q.notify({
-                type: 'warning',
-                message: 'Please enter a message'
-            });
-        }
-        return;
-    }
+    if (!newMessage.value.trim()) return
 
-    if (!authUser.value) {
-        if ($q.notify) {
-            $q.notify({
-                type: 'negative',
-                message: 'Please log in to send messages'
-            });
-        }
-        return;
-    }
-
-    isSending.value = true;
+    isSending.value = true
     try {
-        const response = await axios.post(`/api/messages/${props.recipientId}`, {
+        const response = await axios.post('/api/messages/send', {
+            recipient_id: props.recipientId,
             message: newMessage.value.trim()
-        });
+        })
 
-        messages.value.push(response.data);
-        newMessage.value = '';
+        messages.value.push(response.data.message)
+        newMessage.value = ''
     } catch (error) {
-        const errorMessage = error.response?.data?.message || 'Failed to send message';
-        console.error('Error sending message:', error.response?.data || error);
-        if ($q.notify) {
-            $q.notify({
-                type: 'negative',
-                message: errorMessage
-            });
-        }
+        console.error('Error sending message:', error)
     } finally {
-        isSending.value = false;
+        isSending.value = false
     }
 }
 
+// Lifecycle hooks
 watch(() => props.isOpen, (newVal) => {
     if (newVal) {
-        loadMessages().then(() => {
-            // Only set default message if there are no existing messages
-            if (messages.value.length === 0) {
-                newMessage.value = defaultMessage.value
-            } else {
-                newMessage.value = ''
-            }
-        })
-    }
-})
-
-onMounted(() => {
-    if (props.isOpen) {
-        loadMessages().then(() => {
-            // Only set default message if there are no existing messages
-            if (messages.value.length === 0) {
-                newMessage.value = defaultMessage.value
-            } else {
-                newMessage.value = ''
-            }
-        })
+        loadMessages()
+        // Set default message only if there are no existing messages
+        if (!messages.value.length) {
+            newMessage.value = defaultMessage.value
+        }
+    } else {
+        // Clear messages when dialog closes
+        messages.value = []
+        newMessage.value = ''
+        conversation.value = null
     }
 })
 </script>
@@ -204,7 +179,7 @@ onMounted(() => {
 <style scoped>
 .messages-container {
     scrollbar-width: thin;
-    scrollbar-color: #e0e0e0 transparent;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
 }
 
 .messages-container::-webkit-scrollbar {
@@ -216,13 +191,7 @@ onMounted(() => {
 }
 
 .messages-container::-webkit-scrollbar-thumb {
-    background-color: #e0e0e0;
+    background-color: rgba(156, 163, 175, 0.5);
     border-radius: 3px;
-}
-
-.message-bubble {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    line-height: 1.4;
 }
 </style>
