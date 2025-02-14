@@ -3,71 +3,126 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Message;
+use App\Models\Conversation;
 use App\Services\CustomLogger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MessageController extends Controller
 {
-    public function getConversation(int $recipientId): JsonResponse
+    public function getConversation(int $conversationId): JsonResponse
     {
         try {
             $userId = Auth::id();
 
-            $messages = Message::query()
-                ->where(function ($query) use ($recipientId, $userId) {
-                    $query->where('sender_id', $userId)
-                        ->where('recipient_id', $recipientId);
-                })
-                ->orWhere(function ($query) use ($recipientId, $userId) {
-                    $query->where('sender_id', $recipientId)
-                        ->where('recipient_id', $userId);
-                })
-                ->with(['sender:id,name', 'recipient:id,name'])
-                ->orderBy('created_at', 'asc')
-                ->get();
+            $conversation = Conversation::with(['participants'])
+                ->whereHas('participants', fn($q) => $q->where('user_id', $userId))
+                ->findOrFail($conversationId);
 
-            return response()->json($messages);
+            // Update last_read_at for the current user
+            $conversation->participants()->updateExistingPivot($userId, [
+                'last_read_at' => now()
+            ]);
+
+            return response()->json([
+                'messages' => $conversation->messages()
+                    ->with('sender:id,name')
+                    ->orderBy('created_at')
+                    ->get()
+            ]);
+
         } catch (\Exception $e) {
-            return CustomLogger::errorResponse(
-                'Error getting conversation',
-                $e,
-                [
-                    'recipientId' => $recipientId,
-                    'userId' => Auth::id()
-                ]
-            );
+            CustomLogger::error('Error in MessageController@getConversation', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
     }
 
-    public function store(Request $request, int $recipientId): JsonResponse
+    public function findOrCreateConversation(int $recipientId): JsonResponse
     {
         try {
             $userId = Auth::id();
 
-            $validated = $request->validate([
-                'message' => ['required', 'string', 'max:1000'],
+            // Find existing conversation
+            $conversation = Conversation::whereHas('participants', fn($q) => $q->where('user_id', $userId))
+                ->whereHas('participants', fn($q) => $q->where('user_id', $recipientId))
+                ->first();
+
+            // If no conversation exists, create one
+            if (!$conversation) {
+                DB::beginTransaction();
+
+                $conversation = Conversation::create();
+                $conversation->participants()->attach([$userId, $recipientId]);
+
+                DB::commit();
+            }
+
+            // Load messages
+            $messages = $conversation->messages()
+                ->with('sender:id,name')
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            return response()->json([
+                'conversation' => $conversation->load('participants:id,name'),
+                'messages' => $messages
             ]);
 
-            $message = Message::create([
+        } catch (\Exception $e) {
+            DB::rollBack();
+            CustomLogger::error('Error in MessageController@findOrCreateConversation', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
+    }
+
+    public function sendMessage(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'recipient_id' => 'required|exists:users,id',
+                'message' => 'required|string|max:1000',
+            ]);
+
+            $userId = Auth::id();
+
+            DB::beginTransaction();
+
+            // Find or create conversation between these users
+            $conversation = Conversation::whereHas('participants', fn($q) => $q->where('user_id', $userId))
+                ->whereHas('participants', fn($q) => $q->where('user_id', $validated['recipient_id']))
+                ->first();
+
+            if (!$conversation) {
+                $conversation = Conversation::create();
+                $conversation->participants()->attach([$userId, $validated['recipient_id']]);
+            }
+
+            $message = $conversation->messages()->create([
                 'sender_id' => $userId,
-                'recipient_id' => $recipientId,
                 'message' => $validated['message'],
             ]);
 
-            return response()->json($message->load(['sender:id,name', 'recipient:id,name']));
+            DB::commit();
+
+            return response()->json([
+                'message' => $message->load('sender:id,name')
+            ]);
+
         } catch (\Exception $e) {
-            return CustomLogger::errorResponse(
-                'Error sending message',
-                $e,
-                [
-                    'recipientId' => $recipientId,
-                    'userId' => Auth::id(),
-                    'requestData' => $request->all()
-                ]
-            );
+            DB::rollBack();
+            CustomLogger::error('Error in MessageController@sendMessage', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
         }
     }
 }

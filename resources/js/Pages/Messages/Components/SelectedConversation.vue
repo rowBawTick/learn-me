@@ -3,7 +3,7 @@
         <template v-if="conversation">
             <!-- Conversation Header -->
             <div class="p-3 border-b border-gray-200 bg-white flex-none">
-                <h3 class="text-lg font-semibold truncate">{{ conversation.participant_name }}</h3>
+                <h3 class="text-lg font-semibold truncate">{{ getOtherParticipantName(conversation) }}</h3>
             </div>
 
             <!-- Messages - Scrollable area -->
@@ -50,13 +50,11 @@
                     />
                     <q-btn
                         type="submit"
-                        color="primary"
+                        :loading="sending"
                         :disable="!newMessage.trim()"
+                        color="primary"
                         icon="send"
                         round
-                        flat
-                        size="md"
-                        class="flex-none"
                     />
                 </form>
             </div>
@@ -68,25 +66,26 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 
 const props = defineProps({
     conversation: {
         type: Object,
         default: null
-    },
-    userId: {
-        type: Number,
-        required: true
     }
 })
 
-const emit = defineEmits(['messageSent'])
-
+const userId = usePage().props.auth.user.id
 const messages = ref([])
 const newMessage = ref('')
+const sending = ref(false)
 const messagesContainer = ref(null)
+
+const getOtherParticipantName = (conversation) => {
+    return conversation.participants.find(p => p.id !== userId)?.name || 'Unknown'
+}
 
 const formatDate = (dateStr) => {
     const date = new Date(dateStr)
@@ -99,37 +98,43 @@ const formatDate = (dateStr) => {
     })
 }
 
-const scrollToBottom = async () => {
-    await nextTick()
+const scrollToBottom = () => {
     if (messagesContainer.value) {
-        messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+        setTimeout(() => {
+            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+        }, 50)
     }
 }
 
 const loadMessages = async () => {
-    if (!props.conversation) return
+    if (!props.conversation?.id) return
     
     try {
-        const response = await axios.get(`/api/messages/${props.conversation.participant_id}`)
-        messages.value = response.data
-        await scrollToBottom()
+        const response = await axios.get(`/api/messages/${props.conversation.id}`)
+        messages.value = response.data.messages
+        scrollToBottom()
     } catch (error) {
         console.error('Error loading messages:', error)
     }
 }
 
 const sendMessage = async () => {
-    if (!newMessage.value.trim() || !props.conversation) return
+    if (!newMessage.value.trim() || !props.conversation?.id) return
 
+    sending.value = true
     try {
-        const response = await axios.post(`/api/messages/${props.conversation.participant_id}`, {
-            message: newMessage.value
+        const response = await axios.post('/api/messages/send', {
+            recipient_id: props.conversation.participants.find(p => p.id !== userId)?.id,
+            message: newMessage.value.trim()
         })
-        messages.value.push(response.data)
-        emit('messageSent', response.data)
+        
+        messages.value.push(response.data.message)
         newMessage.value = ''
+        scrollToBottom()
     } catch (error) {
         console.error('Error sending message:', error)
+    } finally {
+        sending.value = false
     }
 }
 
@@ -137,5 +142,17 @@ const sendMessage = async () => {
 watch(messages, scrollToBottom)
 
 // Load messages when conversation changes
-watch(() => props.conversation, loadMessages, { immediate: true })
+watch(() => props.conversation?.id, loadMessages, { immediate: true })
+
+onMounted(() => {
+    if (props.conversation) {
+        loadMessages()
+    }
+})
 </script>
+
+<style scoped>
+.message-bubble {
+    white-space: pre-wrap;
+}
+</style>

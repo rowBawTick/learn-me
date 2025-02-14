@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Message extends Model
 {
     protected $fillable = [
+        'conversation_id',
         'sender_id',
-        'recipient_id',
         'message',
         'is_read',
     ];
@@ -18,13 +18,13 @@ class Message extends Model
         'is_read' => 'boolean',
     ];
 
+    public function conversation(): BelongsTo
+    {
+        return $this->belongsTo(Conversation::class);
+    }
+
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');
-    }
-
-    public function recipient(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'recipient_id');
     }
 }
