@@ -52,7 +52,6 @@ import { ref, watch, onMounted } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 import MessageList from '@/Components/Messages/MessageList.vue'
-import { useMessageFormatter } from '@/Composables/useMessageFormatter'
 
 const props = defineProps({
     conversation: {

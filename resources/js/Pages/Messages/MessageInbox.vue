@@ -1,21 +1,26 @@
 <template>
     <MainLayout>
-        <div class="flex flex-col gap-4 w-full h-screen overflow-hidden bg-gray-50 p-2 sm:p-4">
-            <div class="flex-none h-[40vh] bg-white w-full overflow-hidden rounded-lg">
-                <SelectedConversation
-                    :conversation="selectedConversation"
-                    :user-id="$page.props.auth.user.id"
-                    @message-sent="handleMessageSent"
-                    class="h-full"
-                />
-            </div>
+        <div class="flex h-[90vh] mt-5 bg-gray-50 p-2 sm:p-4">
+            <div class="flex flex-col md:flex-row flex-1 gap-4 min-h-0">
+                <!-- Conversation List - Left on desktop, bottom on mobile -->
+                <div class="order-2 md:order-1 flex-none md:w-1/3 h-[35vh] md:h-full bg-white rounded-lg overflow-hidden">
+                    <ConversationList
+                        :conversations="conversations"
+                        :selected-id="selectedConversation?.participant_id"
+                        @select="selectConversation"
+                        class="h-full"
+                    />
+                </div>
 
-            <div class="flex-1 h-[40vh] overflow-y-auto">
-                <ConversationList
-                    :conversations="conversations"
-                    :selected-id="selectedConversation?.participant_id"
-                    @select="selectConversation"
-                />
+                <!-- Selected Conversation - Right on desktop, top on mobile -->
+                <div class="order-1 md:order-2 flex-1 md:w-2/3 h-[45vh] md:h-full bg-white rounded-lg overflow-hidden">
+                    <SelectedConversation
+                        :conversation="selectedConversation"
+                        :user-id="$page.props.auth.user.id"
+                        @message-sent="handleMessageSent"
+                        class="h-full"
+                    />
+                </div>
             </div>
         </div>
     </MainLayout>

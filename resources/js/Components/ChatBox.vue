@@ -22,7 +22,7 @@
             <!-- Input Area -->
             <q-card-section class="q-px-md q-pb-md">
                 <q-separator class="q-mb-md" />
-                <q-form @submit.prevent="sendMessage">
+                <q-form @submit.prevent="sendDirectMessage">
                     <div class="flex items-end gap-2">
                         <q-input
                             v-model="newMessage"
@@ -56,7 +56,6 @@ import { ref, watch, computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 import MessageList from '@/Components/Messages/MessageList.vue'
-import { useMessageFormatter } from '@/Composables/useMessageFormatter'
 
 const props = defineProps({
     isOpen: {
@@ -88,16 +87,18 @@ const authUser = computed(() => page.props.auth.user)
 const defaultMessage = computed(() => {
     if (!props.recipientName || !authUser.value?.name) return ''
 
-    return `Hi ${props.recipientName},
+    const message = `
+        Hi ${props.recipientName},
+        I'm interested in your tutoring services. Would you be available for a lesson?
+        Best regards,
+        ${authUser.value.name}
+        `;
 
-I'm interested in your tutoring services. Would you be available for a lesson?
-
-Best regards,
-${authUser.value.name}`
+    return message;
 })
 
 // API interactions
-const loadMessages = async () => {
+const loadDirectMessages = async () => {
     try {
         const response = await axios.get(`/api/messages/${props.recipientId}`)
         conversation.value = response.data.conversation
@@ -112,7 +113,7 @@ const loadMessages = async () => {
     }
 }
 
-const sendMessage = async () => {
+const sendDirectMessage = async () => {
     if (!newMessage.value.trim()) return
 
     isSending.value = true
@@ -134,7 +135,7 @@ const sendMessage = async () => {
 // Lifecycle hooks
 watch(() => props.isOpen, (newVal) => {
     if (newVal) {
-        loadMessages()
+        loadDirectMessages()
     } else {
         // Clear messages when dialog closes
         messages.value = []
