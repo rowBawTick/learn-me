@@ -6,7 +6,7 @@
                  class="mb-3">
                 <div class="flex" :class="getMessageAlignment(message, userId)">
                     <div class="max-w-[75%] w-auto">
-                        <div class="message-bubble rounded-lg p-3 shadow-sm break-words"
+                        <div class="message-bubble rounded-lg p-3 shadow-sm break-words whitespace-pre-wrap"
                              :class="getMessageStyle(message, userId)">
                             {{ message.message }}
                         </div>
