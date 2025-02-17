@@ -47,16 +47,22 @@ class MessageController extends Controller
         try {
             $userId = Auth::id();
 
-            // Find existing conversation
-            $conversation = Conversation::whereHas('participants', fn($q) => $q->where('user_id', $userId))
+            // Find existing direct conversation between these users
+            $conversation = Conversation::where('type', 'direct')
+                ->whereHas('participants', fn($q) => $q->where('user_id', $userId))
                 ->whereHas('participants', fn($q) => $q->where('user_id', $recipientId))
+                ->whereDoesntHave('participants', fn($q) => 
+                    $q->whereNotIn('user_id', [$userId, $recipientId])
+                )
                 ->first();
 
             // If no conversation exists, create one
             if (!$conversation) {
                 DB::beginTransaction();
 
-                $conversation = Conversation::create();
+                $conversation = Conversation::create([
+                    'type' => 'direct'
+                ]);
                 $conversation->participants()->attach([$userId, $recipientId]);
 
                 DB::commit();

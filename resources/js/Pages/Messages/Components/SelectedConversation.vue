@@ -7,30 +7,12 @@
             </div>
 
             <!-- Messages - Scrollable area -->
-            <div class="flex-1 overflow-y-auto p-3 min-h-0" ref="messagesContainer">
-                <template v-if="messages.length">
-                    <div v-for="message in messages"
-                         :key="message.id"
-                         class="mb-3">
-                        <div class="flex" :class="message.sender_id === userId ? 'justify-end' : 'justify-start'">
-                            <div class="max-w-[75%] w-auto">
-                                <div class="message-bubble rounded-lg p-3 shadow-sm break-words"
-                                     :class="message.sender_id === userId ?
-                                        'bg-primary text-white' :
-                                        'bg-gray-100'">
-                                    {{ message.message }}
-                                </div>
-                                <div class="text-xs text-gray-500 mt-1"
-                                     :class="message.sender_id === userId ? 'text-right' : 'text-left'">
-                                    {{ formatDate(message.created_at) }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-                <div v-else class="flex items-center justify-center h-full text-gray-500">
-                    No messages yet
-                </div>
+            <div class="flex-1 min-h-0">
+                <MessageList
+                    :messages="messages"
+                    :user-id="userId"
+                    :auto-scroll="true"
+                />
             </div>
 
             <!-- Message Input - Fixed at bottom -->
@@ -69,11 +51,13 @@
 import { ref, watch, onMounted } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
+import MessageList from '@/Components/Messages/MessageList.vue'
+import { useMessageFormatter } from '@/Composables/useMessageFormatter'
 
 const props = defineProps({
     conversation: {
         type: Object,
-        default: null
+        required: true
     }
 })
 
@@ -81,29 +65,9 @@ const userId = usePage().props.auth.user.id
 const messages = ref([])
 const newMessage = ref('')
 const sending = ref(false)
-const messagesContainer = ref(null)
 
 const getOtherParticipantName = (conversation) => {
     return conversation.participants.find(p => p.id !== userId)?.name || 'Unknown'
-}
-
-const formatDate = (dateStr) => {
-    const date = new Date(dateStr)
-    return date.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-    })
-}
-
-const scrollToBottom = () => {
-    if (messagesContainer.value) {
-        setTimeout(() => {
-            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
-        }, 50)
-    }
 }
 
 const loadMessages = async () => {
@@ -112,7 +76,6 @@ const loadMessages = async () => {
     try {
         const response = await axios.get(`/api/conversation/${props.conversation.id}`)
         messages.value = response.data.messages
-        scrollToBottom()
     } catch (error) {
         console.error('Error loading messages:', error)
     }
@@ -130,16 +93,12 @@ const sendMessage = async () => {
 
         messages.value.push(response.data.message)
         newMessage.value = ''
-        scrollToBottom()
     } catch (error) {
         console.error('Error sending message:', error)
     } finally {
         sending.value = false
     }
 }
-
-// Auto-scroll when new messages are added
-watch(messages, scrollToBottom)
 
 // Load messages when conversation changes
 watch(() => props.conversation?.id, loadMessages, { immediate: true })

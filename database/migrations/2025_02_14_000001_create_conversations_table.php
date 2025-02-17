@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('conversations', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->nullable(); // Optional: for group chats or custom naming
+            $table->enum('type', ['direct', 'group'])->default('direct');
+            $table->string('title')->nullable(); // Optional for group chats
             $table->timestamps();
         });
 
@@ -27,7 +28,7 @@ return new class extends Migration
         Schema::table('messages', function (Blueprint $table) {
             // Add conversation_id to messages table
             $table->foreignId('conversation_id')->after('id')->constrained()->cascadeOnDelete();
-            
+
             // We'll keep sender_id but remove recipient_id as it's now handled by conversation_user
             $table->dropForeign(['recipient_id']);
             $table->dropColumn('recipient_id');

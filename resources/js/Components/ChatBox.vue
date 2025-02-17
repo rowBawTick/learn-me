@@ -12,24 +12,11 @@
 
             <!-- Messages Area -->
             <q-card-section class="col flex-grow q-pa-md overflow-hidden">
-                <div class="messages-container h-full overflow-y-auto">
-                    <template v-if="messages.length">
-                        <div v-for="message in messages" :key="message.id" class="q-mb-md">
-                            <div
-                                class="message-bubble rounded-lg p-3 max-w-[80%] shadow-sm"
-                                :class="getMessageAlignment(message)"
-                            >
-                                {{ message.message }}
-                            </div>
-                            <div class="text-xs text-grey-6 mt-1" :class="getTimestampAlignment(message)">
-                                {{ formatDate(message.created_at) }}
-                            </div>
-                        </div>
-                    </template>
-                    <div v-else class="text-grey-6 text-center">
-                        No messages yet
-                    </div>
-                </div>
+                <MessageList
+                    :messages="messages"
+                    :user-id="userId"
+                    :auto-scroll="true"
+                />
             </q-card-section>
 
             <!-- Input Area -->
@@ -68,6 +55,8 @@
 import { ref, watch, computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
+import MessageList from '@/Components/Messages/MessageList.vue'
+import { useMessageFormatter } from '@/Composables/useMessageFormatter'
 
 const props = defineProps({
     isOpen: {
@@ -92,10 +81,10 @@ const messages = ref([])
 const newMessage = ref('')
 const isSending = ref(false)
 const conversation = ref(null)
-
-// Computed properties
 const userId = computed(() => page.props.auth.user.id)
 const authUser = computed(() => page.props.auth.user)
+
+// Computed properties
 const defaultMessage = computed(() => {
     if (!props.recipientName || !authUser.value?.name) return ''
 
@@ -106,28 +95,6 @@ I'm interested in your tutoring services. Would you be available for a lesson?
 Best regards,
 ${authUser.value.name}`
 })
-
-// Message styling utilities
-const getMessageAlignment = (message) => ({
-    'bg-primary text-white ml-auto': message.sender_id === userId.value,
-    'bg-grey-2 mr-auto': message.sender_id !== userId.value
-})
-
-const getTimestampAlignment = (message) => ({
-    'text-right': message.sender_id === userId.value,
-    'text-left': message.sender_id !== userId.value
-})
-
-const formatDate = (dateStr) => {
-    const date = new Date(dateStr)
-    return date.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-    })
-}
 
 // API interactions
 const loadMessages = async () => {
