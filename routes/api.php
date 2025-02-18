@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ConversationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,12 +12,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
     // Conversation routes
-    Route::get('/conversation/{conversationId}', [MessageController::class, 'getConversation'])
+    Route::get('/conversation/{conversationId}', [ConversationController::class, 'getConversation'])
         ->where('conversationId', '[0-9]+');
-    Route::post('/conversation/message/send', [MessageController::class, 'sendMessage']);
-
+    Route::post('/conversation/{conversationId}/message', [ConversationController::class, 'sendMessage'])
+        ->where('conversationId', '[0-9]+');
     // Direct messaging routes
-    Route::get('/messages/{recipientId}', [MessageController::class, 'findOrCreateConversation'])
+    Route::get('/messages/{recipientId}', [ConversationController::class, 'findOrCreateDirectConversation'])
         ->where('recipientId', '[0-9]+');
     Route::post('/messages/send', [MessageController::class, 'sendMessage']);
 });

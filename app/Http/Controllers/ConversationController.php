@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Conversation;
 use App\Services\CustomLogger;
 use Illuminate\Http\JsonResponse;
@@ -10,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class MessageController extends Controller
+class ConversationController extends Controller
 {
     public function getConversation(int $conversationId): JsonResponse
     {
@@ -34,7 +33,7 @@ class MessageController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            CustomLogger::error('Error in MessageController@getConversation', [
+            CustomLogger::error('Error in ConversationController@getConversation', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -42,10 +41,12 @@ class MessageController extends Controller
         }
     }
 
-    public function findOrCreateConversation(int $recipientId): JsonResponse
+    public function findOrCreateDirectConversation(int $recipientId): JsonResponse
     {
         try {
             $userId = Auth::id();
+
+            DB::beginTransaction();
 
             // Find existing direct conversation between these users
             $conversation = Conversation::where('type', 'direct')
@@ -58,15 +59,13 @@ class MessageController extends Controller
 
             // If no conversation exists, create one
             if (!$conversation) {
-                DB::beginTransaction();
-
                 $conversation = Conversation::create([
                     'type' => 'direct'
                 ]);
                 $conversation->participants()->attach([$userId, $recipientId]);
-
-                DB::commit();
             }
+
+            DB::commit();
 
             // Load messages
             $messages = $conversation->messages()
@@ -81,7 +80,7 @@ class MessageController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            CustomLogger::error('Error in MessageController@findOrCreateConversation', [
+            CustomLogger::error('Error in ConversationController@findOrCreateDirectConversation', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -89,11 +88,10 @@ class MessageController extends Controller
         }
     }
 
-    public function sendMessage(Request $request): JsonResponse
+    public function sendMessage(Request $request, int $conversationId): JsonResponse
     {
         try {
             $validated = $request->validate([
-                'recipient_id' => 'required|exists:users,id',
                 'message' => 'required|string|max:1000',
             ]);
 
@@ -101,15 +99,9 @@ class MessageController extends Controller
 
             DB::beginTransaction();
 
-            // Find or create conversation between these users
+            // Find and verify user's access to conversation
             $conversation = Conversation::whereHas('participants', fn($q) => $q->where('user_id', $userId))
-                ->whereHas('participants', fn($q) => $q->where('user_id', $validated['recipient_id']))
-                ->first();
-
-            if (!$conversation) {
-                $conversation = Conversation::create();
-                $conversation->participants()->attach([$userId, $validated['recipient_id']]);
-            }
+                ->findOrFail($conversationId);
 
             $message = $conversation->messages()->create([
                 'sender_id' => $userId,
@@ -124,7 +116,7 @@ class MessageController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            CustomLogger::error('Error in MessageController@sendMessage', [
+            CustomLogger::error('Error in ConversationController@sendMessage', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

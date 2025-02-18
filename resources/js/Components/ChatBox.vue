@@ -75,17 +75,17 @@ const props = defineProps({
 const emit = defineEmits(['update:isOpen'])
 
 // State management
-const page = usePage()
-const messages = ref([])
-const newMessage = ref('')
-const isSending = ref(false)
-const conversation = ref(null)
-const userId = computed(() => page.props.auth.user.id)
-const authUser = computed(() => page.props.auth.user)
+const page = usePage();
+const messages = ref([]);
+const newMessage = ref('');
+const isSending = ref(false);
+const conversation = ref(null);
+const userId = computed(() => page.props.auth.user.id);
+const authUser = computed(() => page.props.auth.user);
 
 // Computed properties
 const defaultMessage = computed(() => {
-    if (!props.recipientName || !authUser.value?.name) return ''
+    if (!props.recipientName || !authUser.value?.name) return '';
 
     const message = `
         Hi ${props.recipientName},
@@ -100,13 +100,13 @@ const defaultMessage = computed(() => {
 // API interactions
 const loadDirectMessages = async () => {
     try {
-        const response = await axios.get(`/api/messages/${props.recipientId}`)
-        conversation.value = response.data.conversation
-        messages.value = response.data.messages || []
+        const response = await axios.get(`/api/messages/${props.recipientId}`);
+        conversation.value = response.data.conversation;
+        messages.value = response.data.messages || [];
 
         // Only set default message if this is a new conversation with no messages
         if (!messages.value.length) {
-            newMessage.value = defaultMessage.value
+            newMessage.value = defaultMessage.value;
         }
     } catch (error) {
         console.error('Error loading messages:', error)
@@ -114,21 +114,21 @@ const loadDirectMessages = async () => {
 }
 
 const sendDirectMessage = async () => {
-    if (!newMessage.value.trim()) return
+    if (!newMessage.value.trim()) return;
 
-    isSending.value = true
+    isSending.value = true;
     try {
         const response = await axios.post('/api/messages/send', {
             recipient_id: props.recipientId,
             message: newMessage.value.trim()
-        })
+        });
 
-        messages.value.push(response.data.message)
-        newMessage.value = ''
+        messages.value.push(response.data.message);
+        newMessage.value = '';
     } catch (error) {
-        console.error('Error sending message:', error)
+        console.error('Error sending message:', error);
     } finally {
-        isSending.value = false
+        isSending.value = false;
     }
 }
 
@@ -144,28 +144,3 @@ watch(() => props.isOpen, (newVal) => {
     }
 })
 </script>
-
-<style scoped>
-.messages-container {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
-}
-
-.messages-container::-webkit-scrollbar {
-    width: 6px;
-}
-
-.messages-container::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.messages-container::-webkit-scrollbar-thumb {
-    background-color: rgba(156, 163, 175, 0.5);
-    border-radius: 3px;
-}
-
-.message-bubble {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-</style>

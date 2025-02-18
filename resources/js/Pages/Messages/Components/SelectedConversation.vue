@@ -85,8 +85,7 @@ const sendMessage = async () => {
 
     sending.value = true
     try {
-        const response = await axios.post('/api/conversation/message/send', {
-            recipient_id: props.conversation.participants.find(p => p.id !== userId)?.id,
+        const response = await axios.post(`/api/conversation/${props.conversation.id}/message`, {
             message: newMessage.value.trim()
         })
 
