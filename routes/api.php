@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\AdvertController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,6 +12,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth')->group(function () {
+    // Adverts
+    Route::patch('/adverts/{advert}/toggle-active', [AdvertController::class, 'toggleActive']);
+
     // Conversation routes
     Route::get('/conversation/{conversationId}', [ConversationController::class, 'getConversation'])
         ->where('conversationId', '[0-9]+');

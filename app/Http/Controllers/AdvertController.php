@@ -75,7 +75,7 @@ class AdvertController extends Controller
             'user',
             'reviews' => fn($query) => $query->with('reviewer')->latest()
         ]);
-        
+
         return Inertia::render('Adverts/ShowAdvert', [
             'advert' => $advert
         ]);
@@ -105,5 +105,22 @@ class AdvertController extends Controller
             'subjects' => Subject::all(['id', 'name']),
             'maxPrice' => $maxPrice,
         ]);
+    }
+
+    public function toggleActive(Advert $advert)
+    {
+        try {
+            if ($advert->user_id !== auth()->id()) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+
+            $advert->is_active = request('is_active');
+            $advert->save();
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('Error toggling advert status: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to update advert status'], 500);
+        }
     }
 }

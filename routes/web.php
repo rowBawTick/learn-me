@@ -7,6 +7,8 @@ use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+require __DIR__.'/auth.php';
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -39,6 +41,8 @@ Route::middleware('auth')->group(function () {
                 ->get()
         ]);
     })->name('my-adverts');
+    Route::patch('/adverts/{advert}/toggle-active', [AdvertController::class, 'toggleActive'])
+        ->name('adverts.toggle-active');
 
     Route::get('/reviews/featured', [ReviewController::class, 'featured'])->name('reviews.featured');
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews');
@@ -55,4 +59,3 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
