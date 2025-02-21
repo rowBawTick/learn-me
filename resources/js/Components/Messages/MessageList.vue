@@ -1,10 +1,10 @@
 <template>
     <div class="messages-container h-full overflow-y-auto" ref="messagesContainer">
         <template v-if="messages.length">
-            <div v-for="message in messages" 
-                 :key="message.id" 
+            <div v-for="message in messages"
+                 :key="message.id"
                  class="mb-3">
-                <div class="flex" :class="getMessageAlignment(message, userId)">
+                <div class="flex px-2" :class="getMessageAlignment(message, userId)">
                     <div class="max-w-[75%] w-auto">
                         <div class="message-bubble rounded-lg p-3 shadow-sm break-words whitespace-pre-wrap"
                              :class="getMessageStyle(message, userId)">

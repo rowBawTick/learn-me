@@ -17,28 +17,11 @@
 
             <!-- Message Input - Fixed at bottom -->
             <div class="p-3 border-t border-gray-200 bg-white flex-none w-full">
-                <form @submit.prevent="sendMessage" class="flex items-end gap-2">
-                    <q-input
-                        v-model="newMessage"
-                        type="textarea"
-                        class="flex-grow"
-                        filled
-                        autogrow
-                        square
-                        bg-color="white"
-                        placeholder="Type your message here..."
-                        :max-height="150"
-                        rows="2"
-                    />
-                    <q-btn
-                        type="submit"
-                        :loading="sending"
-                        :disable="!newMessage.trim()"
-                        color="primary"
-                        icon="send"
-                        round
-                    />
-                </form>
+                <MessageInput
+                    v-model="newMessage"
+                    :isLoading="sending"
+                    @send-message="sendMessage"
+                />
             </div>
         </template>
         <div v-else class="flex items-center justify-center h-full text-gray-500">
@@ -52,6 +35,7 @@ import { ref, watch, onMounted } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 import MessageList from '@/Components/Messages/MessageList.vue'
+import MessageInput from '@/Components/Messages/MessageInput.vue'
 
 const props = defineProps({
     conversation: {

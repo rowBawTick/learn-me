@@ -22,30 +22,11 @@
             <!-- Input Area -->
             <q-card-section class="q-px-md q-pb-md">
                 <q-separator class="q-mb-md" />
-                <q-form @submit.prevent="sendDirectMessage">
-                    <div class="flex items-end gap-2">
-                        <q-input
-                            v-model="newMessage"
-                            type="textarea"
-                            rows="3"
-                            class="flex-grow"
-                            filled
-                            autogrow
-                            square
-                            bg-color="white"
-                            placeholder="Type your message here..."
-                            :max-height="150"
-                        />
-                        <q-btn
-                            type="submit"
-                            :loading="isSending"
-                            :disable="!newMessage.trim()"
-                            color="primary"
-                            icon="send"
-                            round
-                        />
-                    </div>
-                </q-form>
+                <MessageInput
+                    v-model="newMessage"
+                    :isLoading="isSending"
+                    @send-message="sendDirectMessage"
+                />
             </q-card-section>
         </q-card>
     </q-dialog>
@@ -56,6 +37,7 @@ import { ref, watch, computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 import MessageList from '@/Components/Messages/MessageList.vue'
+import MessageInput from '@/Components/Messages/MessageInput.vue'
 
 const props = defineProps({
     isOpen: {
@@ -85,14 +67,14 @@ const authUser = computed(() => page.props.auth.user);
 
 // Computed properties
 const defaultMessage = computed(() => {
-    if (!props.recipientName || !authUser.value?.name) return '';
+    if (messages.value.length > 0) return '';
 
-    const message = `
-        Hi ${props.recipientName},
-        I'm interested in your tutoring services. Would you be available for a lesson?
-        Best regards,
-        ${authUser.value.name}
-        `;
+    const message = `Hi ${props.recipientName},
+
+I'm interested in your tutoring services. Would you be available for a lesson?
+
+Best regards,
+${authUser.value.name}`;
 
     return message;
 })
