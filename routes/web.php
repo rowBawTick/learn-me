@@ -31,6 +31,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/adverts/create', [AdvertController::class, 'create'])->name('adverts.create');
     Route::post('/adverts', [AdvertController::class, 'store'])->name('adverts.store');
     Route::get('/adverts/{advert}', [AdvertController::class, 'show'])->name('adverts.show');
+    Route::get('/my-adverts', function () {
+        return Inertia::render('Listings/MyAdverts', [
+            'adverts' => Auth::user()->adverts()
+                ->with('subject')
+                ->orderBy('created_at', 'desc')
+                ->get()
+        ]);
+    })->name('my-adverts');
 
     Route::get('/reviews/featured', [ReviewController::class, 'featured'])->name('reviews.featured');
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews');
