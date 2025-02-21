@@ -63,7 +63,7 @@ class AdvertController extends Controller
             ]);
         }
 
-        return redirect()->route('adverts.index');
+        return redirect()->route('my-adverts');
     }
 
     public function show(Advert $advert): Response
