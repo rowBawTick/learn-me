@@ -49,11 +49,10 @@ const toggleActive = async (newValue) => {
         <p class="text-sm text-darkGrey mb-2">{{ advert.subject.name }}</p>
       </div>
       <q-btn
-        flat
         color="primary"
         icon="edit"
         label="Edit"
-        class="font-medium"
+        class="font-medium px-3 rounded-lg hover:bg-primary-dark transition-colors q-px-sm q-py-xs"
         @click="router.visit(`/adverts/${advert.id}/edit`)"
       />
     </div>
