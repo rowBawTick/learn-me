@@ -126,6 +126,9 @@ import MainLayout from '@/Layouts/MainLayout.vue'
 import TimeSlotManager from '@/Components/TimeSlots/TimeSlotManager.vue'
 import { Head } from '@inertiajs/vue3'
 import { computed } from 'vue'
+import { useQuasar } from 'quasar';
+
+const $q = useQuasar();
 
 const props = defineProps({
   subjects: {
@@ -177,9 +180,39 @@ const selectedCurrencySymbol = computed(() => {
 
 function submit() {
   if (props.advert) {
-    form.put(route('adverts.update', props.advert.id))
+    form.put(route('adverts.update', props.advert.id), {
+      onSuccess: () => {
+        $q.notify({
+          type: 'positive',
+          message: 'Advert updated successfully',
+          position: 'top'
+        });
+      },
+      onError: () => {
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to update advert',
+          position: 'top'
+        });
+      }
+    });
   } else {
-    form.post(route('adverts.store'))
+    form.post(route('adverts.store'), {
+      onSuccess: () => {
+        $q.notify({
+          type: 'positive',
+          message: 'Advert created successfully',
+          position: 'top'
+        });
+      },
+      onError: () => {
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to create advert',
+          position: 'top'
+        });
+      }
+    });
   }
 }
 
