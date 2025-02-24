@@ -32,6 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/adverts/search', [AdvertController::class, 'search'])->name('adverts.search');
     Route::get('/adverts/create', [AdvertController::class, 'create'])->name('adverts.create');
     Route::post('/adverts', [AdvertController::class, 'store'])->name('adverts.store');
+    Route::get('/adverts/{advert}/edit', [AdvertController::class, 'edit'])->name('adverts.edit');
+    Route::put('/adverts/{advert}', [AdvertController::class, 'update'])->name('adverts.update');
     Route::get('/adverts/{advert}', [AdvertController::class, 'show'])->name('adverts.show');
     Route::get('/my-adverts', function () {
         return Inertia::render('Listings/MyAdverts', [
@@ -58,4 +60,3 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-

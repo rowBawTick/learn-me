@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useQuasar } from 'quasar';
+import { router } from '@inertiajs/vue3';
 import axios from 'axios';
 
 const $q = useQuasar();
@@ -42,8 +43,20 @@ const toggleActive = async (newValue) => {
 
 <template>
   <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-    <h2 class="text-xl font-semibold mb-2 text-darkestGrey">{{ advert.title }}</h2>
-    <p class="text-sm text-darkGrey mb-2">{{ advert.subject.name }}</p>
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h2 class="text-xl font-semibold mb-2 text-darkestGrey">{{ advert.title }}</h2>
+        <p class="text-sm text-darkGrey mb-2">{{ advert.subject.name }}</p>
+      </div>
+      <q-btn
+        flat
+        color="primary"
+        icon="edit"
+        label="Edit"
+        class="font-medium"
+        @click="router.visit(`/adverts/${advert.id}/edit`)"
+      />
+    </div>
     <p class="text-lg font-medium text-primary mb-4">£{{ advert.price_per_hour }}/hour</p>
     <p class="text-darkerGrey text-sm line-clamp-3 mb-4">{{ advert.description }}</p>
     <div class="flex justify-between items-center">

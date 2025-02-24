@@ -1,9 +1,9 @@
 <template>
-  <Head title="Create New Advert" />
+  <Head :title="advert ? 'Edit Advert' : 'Create New Advert'" />
 
   <MainLayout>
     <div class="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <h1 class="text-3xl font-bold mb-8 text-darkestGrey">Create New Advert</h1>
+      <h1 class="text-3xl font-bold mb-8 text-darkestGrey">{{ advert ? 'Edit Advert' : 'Create New Advert' }}</h1>
 
       <form @submit.prevent="submit" class="space-y-6">
         <div>
@@ -112,7 +112,7 @@
             :loading="form.processing"
             color="primary"
             class="px-4 py-2"
-            label="Create Advert"
+            label="Save Advert"
           />
         </div>
       </form>
@@ -135,8 +135,26 @@ const props = defineProps({
   currencies: {
     type: Array,
     required: true
+  },
+  advert: {
+    type: Object,
+    required: false,
+    default: null
   }
 })
+
+const form = useForm(
+  {
+    title: props.advert?.title || '',
+    subject_id: props.advert?.subject_id || '',
+    currency_id: props.advert?.currency_id || '',
+    price_per_hour: props.advert?.price_per_hour || '',
+    description: props.advert?.description || '',
+    available_times: props.advert?.available_times?.map(({day_of_week, local_start_time, local_end_time }) => ({
+      day_of_week, start_time: local_start_time, end_time: local_end_time }))
+      || []
+  }
+);
 
 const subjectOptions = computed(() => {
   return props.subjects.map(subject => ({
@@ -148,8 +166,7 @@ const subjectOptions = computed(() => {
 const currencyOptions = computed(() => {
   return props.currencies.map(currency => ({
     label: `${currency.code} (${currency.symbol})`,
-    value: currency.id,
-    symbol: currency.symbol
+    value: currency.id
   }))
 })
 
@@ -158,25 +175,12 @@ const selectedCurrencySymbol = computed(() => {
   return currency?.symbol || '£'
 })
 
-const form = useForm({
-  title: '',
-  subject_id: '',
-  currency_id: '',
-  price_per_hour: '',
-  description: '',
-  available_times: []
-})
-
-// Set default currency to GBP if available
-if (props.currencies?.length) {
-  const gbp = props.currencies.find(c => c.code === 'GBP')
-  if (gbp) {
-    form.currency_id = gbp.id
+function submit() {
+  if (props.advert) {
+    form.put(route('adverts.update', props.advert.id))
+  } else {
+    form.post(route('adverts.store'))
   }
-}
-
-const submit = () => {
-  form.post(route('adverts.store'))
 }
 
 const allowDecimalInput = (event) => {
