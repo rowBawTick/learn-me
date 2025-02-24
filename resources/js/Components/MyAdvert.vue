@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
+import CustomPrimaryButton from '@/Components/CustomPrimaryButton.vue';
 
 const $q = useQuasar();
 
@@ -48,11 +49,9 @@ const toggleActive = async (newValue) => {
         <h2 class="text-xl font-semibold mb-2 text-darkestGrey">{{ advert.title }}</h2>
         <p class="text-sm text-darkGrey mb-2">{{ advert.subject.name }}</p>
       </div>
-      <q-btn
-        color="primary"
+      <CustomPrimaryButton
         icon="edit"
         label="Edit"
-        class="font-medium px-3 rounded-lg hover:bg-primary-dark transition-colors q-px-sm q-py-xs"
         @click="router.visit(`/adverts/${advert.id}/edit`)"
       />
     </div>
