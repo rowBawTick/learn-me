@@ -1,7 +1,7 @@
 <template>
     <div class="h-full flex flex-col">
         <div class="p-3 border-b border-gray-200">
-            <h2 class="text-lg font-semibold">Messages</h2>
+            <h2 class="text-lg font-semibold">Conversations</h2>
         </div>
         <div class="flex-1 overflow-y-auto">
             <div v-for="conversation in conversations"
