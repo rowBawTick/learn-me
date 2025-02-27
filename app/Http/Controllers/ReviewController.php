@@ -6,9 +6,35 @@ use App\Models\Advert;
 use App\Models\Review;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ReviewController extends Controller
 {
+    /**
+     * Display a listing of reviews for the authenticated user's adverts.
+     */
+    public function index()
+    {
+        try {
+            $reviews = Review::with(['advert.subject', 'reviewer'])
+                ->whereHas('advert', function ($query) {
+                    $query->where('user_id', auth()->id());
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return Inertia::render('Reviews/MyReviews', [
+                'reviews' => $reviews
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching reviews: ' . $e->getMessage());
+            return Inertia::render('Reviews/MyReviews', [
+                'reviews' => [],
+                'error' => config('app.debug') ? $e->getMessage() : 'Error fetching reviews'
+            ]);
+        }
+    }
+
     /**
      * Get a random selection of featured reviews (4-5 stars)
      */
