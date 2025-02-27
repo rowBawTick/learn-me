@@ -1,13 +1,13 @@
 <template>
-    <div class="h-full flex flex-col bg-white rounded-lg shadow-lg overflow-hidden">
+    <div class="h-[45vh] md:h-[90vh] flex flex-col bg-white rounded-lg shadow-lg overflow-hidden">
         <template v-if="conversation">
             <!-- Conversation Header -->
-            <div class="p-3 border-b border-gray-200 bg-white flex-none">
+            <div class="p-3 flex-none border-b border-gray-200 bg-white">
                 <h3 class="text-lg font-semibold truncate">{{ getOtherParticipantName(conversation) }}</h3>
             </div>
 
             <!-- Messages - Scrollable area -->
-            <div class="flex-1 min-h-0">
+            <div class="flex-1 overflow-y-auto">
                 <MessageList
                     :messages="messages"
                     :user-id="userId"
@@ -16,7 +16,7 @@
             </div>
 
             <!-- Message Input - Fixed at bottom -->
-            <div class="p-3 border-t border-gray-200 bg-white flex-none w-full">
+            <div class="p-3 border-t border-gray-200 bg-white">
                 <MessageInput
                     v-model="newMessage"
                     :isLoading="sending"

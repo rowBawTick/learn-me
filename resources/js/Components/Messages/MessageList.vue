@@ -1,5 +1,5 @@
 <template>
-    <div class="messages-container h-full overflow-y-auto" ref="messagesContainer">
+    <div class="messages-container h-[45vh] md:h-[90vh]" ref="messagesContainer">
         <template v-if="messages.length">
             <div v-for="message in messages"
                  :key="message.id"
