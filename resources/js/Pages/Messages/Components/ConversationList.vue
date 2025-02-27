@@ -12,7 +12,7 @@
                 <div class="flex justify-between items-start gap-2">
                     <div class="text-sm font-semibold truncate flex-1">
                         {{ getOtherParticipantName(conversation) }}
-                        <span v-if="conversation.unread_count" 
+                        <span v-if="conversation.unread_count"
                               class="ml-2 px-2 py-0.5 bg-primary text-white text-xs rounded-full">
                             {{ conversation.unread_count }}
                         </span>

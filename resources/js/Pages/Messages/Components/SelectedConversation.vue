@@ -1,5 +1,5 @@
 <template>
-    <div class="h-[45vh] md:h-[90vh] flex flex-col bg-white rounded-lg shadow-lg overflow-hidden">
+    <div class="h-[45vh] md:h-[85vh] flex flex-col bg-white rounded-lg shadow-lg overflow-hidden">
         <template v-if="conversation">
             <!-- Conversation Header -->
             <div class="p-3 flex-none border-b border-gray-200 bg-white">
