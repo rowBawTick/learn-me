@@ -55,13 +55,21 @@
                         <p v-else class="mt-2 text-gray-600 italic">No available times provided</p>
                     </div>
 
-                    <div class="mt-8 flex justify-center">
+                    <div class="mt-8 flex justify-center space-x-4">
                         <QBtn
                             color="primary"
                             icon="mail"
                             label="Message Tutor"
                             class="w-full sm:w-auto"
                             @click="isChatOpen = true"
+                        />
+                        <QBtn
+                            v-if="auth.user && auth.user.id !== advert.user_id"
+                            color="secondary"
+                            icon="rate_review"
+                            label="Write Review"
+                            class="w-full sm:w-auto"
+                            @click="isReviewOpen = true"
                         />
                     </div>
                 </QCardSection>
@@ -71,6 +79,14 @@
                 v-model:is-open="isChatOpen"
                 :recipient-id="advert.user_id"
                 :recipient-name="advert.user?.name"
+            />
+
+            <ReviewForm
+                v-model="isReviewOpen"
+                :advert-id="advert.id"
+                :advert-user-id="advert.user_id"
+                :auth="auth"
+                @review-submitted="handleNewReview"
             />
 
             <UserReviews :reviews="reviews" />
@@ -84,6 +100,7 @@ import { QCard, QCardSection, QBtn, QIcon, QRating } from 'quasar'
 import MainLayout from '@/Layouts/MainLayout.vue'
 import ChatBox from '@/Components/ChatBox.vue'
 import UserReviews from '@/Components/UserReviews.vue'
+import ReviewForm from '@/Components/Reviews/ReviewForm.vue'
 
 const props = defineProps({
     advert: {
@@ -98,6 +115,8 @@ const props = defineProps({
 
 const isFavorite = ref(false)
 const isChatOpen = ref(false)
+const isReviewOpen = ref(false)
+const reviews = ref(props.advert.reviews || [])
 
 const toggleFavorite = () => {
     isFavorite.value = !isFavorite.value
@@ -111,7 +130,7 @@ const availableTimes = computed(() => {
     return props.advert.available_times || []
 })
 
-const reviews = computed(() => {
-    return props.advert.reviews || []
-})
+const handleNewReview = (review) => {
+    reviews.value.unshift(review)
+}
 </script>

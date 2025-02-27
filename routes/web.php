@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/reviews/featured', [ReviewController::class, 'featured'])->name('reviews.featured');
     Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews');
+    Route::post('/adverts/{advert}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/inbox', function () {
         return Inertia::render('Messages');
