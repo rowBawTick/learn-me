@@ -53,7 +53,7 @@ const formatDate = (dateString) => {
                   <StarRating :rating="review.rating" size="md" />
                   <span class="ml-2 text-sm text-gray-500">{{ review.rating }}/5</span>
                 </div>
-                <h3 class="font-semibold text-lg">{{ review.advert.subject.name }}</h3>
+                <h3 class="font-semibold text-lg">{{ review.advert.title }}</h3>
                 <p class="text-sm text-gray-500">
                   Reviewed by {{ review.reviewer.name }} · {{ formatDate(review.created_at) }}
                 </p>

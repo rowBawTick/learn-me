@@ -16,11 +16,13 @@ class ReviewController extends Controller
     public function index()
     {
         try {
-            $reviews = Review::with(['advert.subject', 'reviewer'])
+            $reviews = Review::select('reviews.*')
+                ->with(['advert.subject', 'advert.user', 'reviewer'])
                 ->whereHas('advert', function ($query) {
                     $query->where('user_id', auth()->id());
                 })
-                ->orderBy('created_at', 'desc')
+                ->distinct()
+                ->orderBy('reviews.created_at', 'desc')
                 ->get();
 
             return Inertia::render('Reviews/MyReviews', [
