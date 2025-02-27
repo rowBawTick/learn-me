@@ -2,6 +2,7 @@
 import MainLayout from '@/Layouts/MainLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import MyAdvert from '@/Components/MyAdvert.vue';
+import EmptyState from '@/Components/EmptyState.vue';
 
 defineProps({
   adverts: {
@@ -19,13 +20,12 @@ defineProps({
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <h1 class="text-3xl font-bold mb-8 text-darkestGrey">My Adverts</h1>
 
-        <div v-if="adverts.length === 0" class="text-center py-12">
-          <p class="text-grey mb-6">You haven't created any adverts yet.</p>
-          <q-btn
-            color="primary"
-            label="Create Your First Advert"
-            class="font-medium"
-            @click="router.visit('/adverts/create')"
+        <div v-if="adverts.length === 0">
+          <EmptyState
+            title="No Adverts Yet"
+            message="You haven't created any adverts yet."
+            actionLabel="Create Your First Advert"
+            actionRoute="/adverts/create"
           />
         </div>
 

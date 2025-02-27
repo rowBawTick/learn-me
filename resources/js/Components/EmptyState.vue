@@ -1,5 +1,6 @@
 <script setup>
 import { defineProps } from 'vue';
+import { router } from '@inertiajs/vue3';
 
 defineProps({
   title: {
@@ -19,6 +20,12 @@ defineProps({
     default: ''
   }
 });
+
+const navigate = (route) => {
+  if (route) {
+    router.visit(route);
+  }
+};
 </script>
 
 <template>
@@ -33,7 +40,7 @@ defineProps({
       color="primary"
       :label="actionLabel"
       class="font-medium"
-      :to="actionRoute"
+      @click="navigate(actionRoute)"
     />
   </div>
 </template>
