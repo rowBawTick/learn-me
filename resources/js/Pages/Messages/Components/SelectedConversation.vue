@@ -7,7 +7,7 @@
             </div>
 
             <!-- Messages - Scrollable area -->
-            <div class="flex-1 overflow-y-auto">
+            <div class="flex-1 w-[90vw] md:w-full overflow-y-auto">
                 <MessageList
                     :messages="messages"
                     :user-id="userId"
@@ -16,7 +16,7 @@
             </div>
 
             <!-- Message Input - Fixed at bottom -->
-            <div class="p-3 border-t border-gray-200 bg-white">
+            <div class="w-[90vw] md:w-full p-3 border-t border-gray-200 bg-white">
                 <MessageInput
                     v-model="newMessage"
                     :isLoading="sending"
@@ -24,7 +24,7 @@
                 />
             </div>
         </template>
-        <div v-else class="flex items-center justify-center h-full text-gray-500">
+        <div v-else class="flex items-center justify-center w-[90vw] md:w-full h-full text-gray-500">
             Select a conversation to start messaging
         </div>
     </div>
