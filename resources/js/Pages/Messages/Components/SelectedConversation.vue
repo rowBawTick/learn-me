@@ -40,7 +40,8 @@ import MessageInput from '@/Components/Messages/MessageInput.vue'
 const props = defineProps({
     conversation: {
         type: Object,
-        required: true
+        required: false,
+        default: null
     }
 })
 
